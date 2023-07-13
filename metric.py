@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 
 class ArcFace(nn.Module):
-    def __init__(self, embedding_size, class_num, s=30.0, m=0.50):
+    def __init__(self, embedding_size, class_num, s=30.0, m=1.50):
         super().__init__()
         self.in_features = embedding_size
         self.out_features = class_num

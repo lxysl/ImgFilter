@@ -1,6 +1,7 @@
 import itertools
 import os
 import json
+from PIL import Image
 
 clean_folder_list = ['all', 'dress', 'lower', 'upper']
 all_part_list = ['1', '2', '3', '4', '5', '6']
@@ -163,11 +164,33 @@ def get_pair(clean_path_list, all_path_list, clean_list, all_list):
             f.write(pair[0] + ',' + pair[1] + '\n')
 
 
+def examine_data():
+    img_pairs = []
+    labels = []
+    with open('./dataset/positive_pair.txt') as f:
+        for line in f.readlines():
+            line = line.strip()
+            img_pairs.append((line.split(',')[0], line.split(',')[1]))
+            labels.append(1)
+    with open('./dataset/negative_pair.txt') as f:
+        for line in f.readlines():
+            line = line.strip()
+            img_pairs.append((line.split(',')[0], line.split(',')[1]))
+            labels.append(0)
+
+    for i in range(len(img_pairs)):
+        print(i, len(img_pairs), img_pairs[i][0], img_pairs[i][1])
+        Image.open(img_pairs[i][0]).convert('RGB')
+        Image.open(img_pairs[i][1]).convert('RGB')
+
+
 if __name__ == '__main__':
     # save_item_list()
 
     # cleanPathList, allPathList, cleanList, allList = get_item_list()
     # split_data(cleanPathList, allPathList, cleanList, allList)
 
-    cleanPathList, allPathList, cleanList, allList = get_item_list()
-    get_pair(cleanPathList, allPathList, cleanList, allList)
+    # cleanPathList, allPathList, cleanList, allList = get_item_list()
+    # get_pair(cleanPathList, allPathList, cleanList, allList)
+
+    examine_data()

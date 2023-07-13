@@ -1240,7 +1240,6 @@
 /Users/lxy/Downloads/tb_train_dataset/train_dataset_part6/image/048300/4.jpg,/Users/lxy/Downloads/tb_train_dataset/train_dataset_part6/image/048300/3.jpg
 /Users/lxy/Downloads/tb_train_dataset/train_dataset_part1/image/004813/4.jpg,/Users/lxy/Downloads/tb_train_dataset/train_dataset_part1/image/004813/3.jpg
 /Users/lxy/Downloads/tb_train_dataset/train_dataset_part4/image/093555/2.jpg,/Users/lxy/Downloads/tb_train_dataset/train_dataset_part4/image/093555/3.jpg
-,
 /Users/lxy/Downloads/tb_train_dataset/train_dataset_part1/image/070966/5.jpg,/Users/lxy/Downloads/tb_train_dataset/train_dataset_part1/image/070966/1.jpg
 /Users/lxy/Downloads/tb_train_dataset/train_dataset_part5/image/026340/4.jpg,/Users/lxy/Downloads/tb_train_dataset/train_dataset_part5/image/026340/0.jpg
 /Users/lxy/Downloads/tb_train_dataset/train_dataset_part6/image/035757/2.jpg,/Users/lxy/Downloads/tb_train_dataset/train_dataset_part6/image/035757/1.jpg

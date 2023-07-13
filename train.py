@@ -38,6 +38,21 @@ def setup_seed(seed=42):
     torch.backends.cudnn.enabled = False
 
 
+class FocalLoss(nn.Module):
+
+    def __init__(self, gamma=0, eps=1e-7):
+        super(FocalLoss, self).__init__()
+        self.gamma = gamma
+        self.eps = eps
+        self.ce = torch.nn.CrossEntropyLoss()
+
+    def forward(self, input, target):
+        logp = self.ce(input, target)
+        p = torch.exp(-logp)
+        loss = (1 - p) ** self.gamma * logp
+        return loss.mean()
+
+
 def train_steps(loop, net, criterion, optimizer, metric, config):
     train_loss = []
     net.train()
@@ -55,7 +70,17 @@ def train_steps(loop, net, criterion, optimizer, metric, config):
 
         loss = loss.item()
         train_loss.append(loss)
-        loop.set_postfix(loss=loss)
+
+        theta = theta.detach().cpu().numpy()
+        theta = np.argmax(theta, axis=1)
+        y = y.detach().cpu().numpy()
+        recall0 = np.sum((theta == 0) & (y == 0)) / np.sum(y == 0)
+        recall1 = np.sum((theta == 1) & (y == 1)) / np.sum(y == 1)
+
+        loop.set_postfix(loss=loss, recall0=recall0, recall1=recall1)
+        wandb.log({"train loss": loss,
+                   "train recall0": recall0,
+                   "train recall1": recall1})
     return {"loss": np.mean(train_loss)}
 
 
@@ -104,7 +129,7 @@ def train_epochs(train_dataloader, val_dataloader, net, criterion, optimizer, me
         #       f'val loss: {val_metrix["loss"]}; '
         #       f'val acc: {val_metrix["acc"]}')
 
-        wandb.log({"train loss": train_metrix["loss"], })
+        # wandb.log({"train loss": train_metrix["loss"], })
         # "validation loss": val_metrix["loss"],
         # "validation accuracy": val_metrix["acc"]})
     return {'train_loss': train_loss_ls, }
@@ -118,7 +143,7 @@ def train(model_path, train_dataloader, val_dataloader, net, optimizer, criterio
         print("Shape of test X2: ", train_X2.shape)
         print("Shape of test y: ", train_y.shape, train_y.dtype)
         break
-    # summary(net, (config['batch_size'], config['dim']), col_names=["input_size", "kernel_size", "output_size"],
+    # summary(net, (config['batch_size'], 3, 512, 512), col_names=["input_size", "kernel_size", "output_size"],
     #         verbose=2)
 
     metrix = train_epochs(train_dataloader, val_dataloader, net, criterion, optimizer, metric, config)
@@ -150,6 +175,7 @@ if __name__ == '__main__':
     model_path = './model/' + cur_time + '-' + cfg["model"]
 
     train_transform = transforms.Compose([
+        transforms.Resize(512),
         transforms.RandomHorizontalFlip(),
         transforms.RandomCrop(512, padding=4),
         transforms.ToTensor(),
@@ -190,6 +216,8 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(params=net.parameters(), lr=cfg['lr'], momentum=0.9, weight_decay=5e-4)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=cfg['lr_step'], gamma=0.1)
     criterion = CrossEntropyLoss().to(device)
+    # criterion = FocalLoss(gamma=2).to(device)
     metric = ArcFace(cfg["embed"], cfg["class_num"]).to(device)
     metrix = train(model_path, train_loader, test_loader, net, optimizer, criterion, metric, cfg)
+    # train(model_path, train_loader, test_loader, net, optimizer, criterion, metric, cfg)
     wandb.finish()
